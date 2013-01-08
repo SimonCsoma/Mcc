@@ -1,0 +1,7 @@
+# TO-DO make a basic config file!
+
+plot:
+  default:
+    size: 12
+    height: 25
+    depth: 6

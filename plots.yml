@@ -1,0 +1,16 @@
+#To-Do make flags!
+# plots > world > city > plot
+plots:
+   mcc:
+      1-1-1-1:
+         shop: false
+         owner: someone
+         members:
+            - none
+         city: mccity
+         regions:
+            - 1-1-1-1
+citys:
+   MMC:
+      - mccity
+      

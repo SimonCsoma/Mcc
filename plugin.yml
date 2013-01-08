@@ -1,0 +1,42 @@
+name: MCC
+main: org.mccity.mcc.mcc
+version: 0.2.0.2
+
+commands:
+   shareplot:
+     description: Lets you share a plot with another player
+     usage: /shareplot [plotnumber] [player-name]
+     permissions: mcc.shareplot
+     permissions-message: you don't have permission
+   claimplot:
+     description: Lets you claim your first plot
+     usage: /claimplot [plotnumber]
+     permissions: mcc.claim
+     permissions-message: You already claimed a plot!
+   inv:
+     description: Makes you invisible!
+     usage: /inv
+     permissions: mcc.admin.inv
+     permissions-message: You are not an admin!!!
+   mcc:
+     description: Starts help conversation
+     usage: /mcc
+     permissions: mcc.player
+     permissions-message: You're not jet an player!
+   plotcheck:
+     description: Checks things
+     usage: /plotcheck
+     permissions: mcc.admin.plotcheck
+     permissions-message: You need to be admin!
+   set:
+     description: Set an area
+     usage: /set
+     permissions: mcc.admin.set
+     permissions-message: You need to be admin!
+   cp:
+     description: creates a plot!
+     usage: /cp [plotname] [-f]
+   undo:
+     desctiption: undo
+     usage: /undo
+     
