@@ -55,7 +55,7 @@ public class PlotCreator {
 				name = (String) arg.subSequence(temp, arg.length());
 				
 			} else {
-				player.sendMessage(ChatColor.RED + "The argument: " + arg + "does not exists");
+				player.sendMessage(ChatColor.RED + "The argument: " + arg + "does not exist.");
 				return;
 			}
 		}
@@ -78,8 +78,10 @@ public class PlotCreator {
 		if(!this.setRegion()){
 			return;
 		}
-		CreatePhysicalPlot.CreatePlot(position1, position2, heigth, depth, player.getWorld(), player);
-		registerPlot();
+
+        CreatePhysicalPlot.CreatePlot(position1, position2, heigth, depth, player.getWorld(), player);
+		createPlot(name, player.getWorld(), regionIds, typeOfPlot);
+		registerPlot(name, plot);
 		
 	}
 	
@@ -223,10 +225,35 @@ public class PlotCreator {
 		return regionsInsideRegion;
 	}
 	
-	public void registerPlot(){
+	public Plot createPlot(String string, World world, List<String> stringList, String typeOfPlot){
 		
-		//plugin.plots.
+		
+		switch (typeOfPlot){
+			case "city":
+				Plot plot = new CityPlot(string, world, stringList);
+				return plot;
+			case "corporation":
+				CityPlot cityPlot = new CityPlot(string, world, stringList);
+				Plot plot = new CorporationPlot(string, cityPlot, stringList);
+				return plot;
+			case "residence":
+				CityPlot cityPlot = new CityPlot(string, world, stringList);
+				Plot plot = new ResidencePlot(string, cityPlot, stringList);
+				return plot;
+			default:
+				return null;
+		}
+		
+	}
+	
+	public void registerPlot(String nameOfPlot, Plot plot){
+		PlotHandler handle = new PlotHandler(plugin, player.getWorld());
+ 		handle.setPlot(nameOfPlot, plot);
+ 		
+        // plugin.plots;
 		//plugin.plots.set("plots.mcc.mccity", name);
+		
+		
 		
 	}
 }

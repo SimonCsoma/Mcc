@@ -12,7 +12,7 @@ import org.mccity.mcc.Mcc;
 public class PlotHandler extends YamlHandler{
 	
 	public Mcc plugin;
-	public Map<String, Plot> plots;
+	private Map<String, Plot> plots;
 	
 	public PlotHandler(Mcc plugin, World world) {
 		super(plugin);
@@ -49,6 +49,17 @@ public class PlotHandler extends YamlHandler{
 			return null;
 		}	
 	}
+	
+	public boolean setPlot(String nameOfPlot, Plot plot){
+		if ( plot!= null){
+			plots.put(nameOfPlot, plot);
+			return true;	
+		}else{
+			return false;
+		}
+		
+	}
+		
 	
 }
 	

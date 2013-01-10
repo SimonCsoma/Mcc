@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path=""/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="C:/mccity/WorldGuard.jar"/>
+	<classpathentry kind="lib" path="C:/mccity/HotelTest.jar"/>
+	<classpathentry kind="lib" path="C:/mccity/PermissionsEx.jar"/>
+	<classpathentry kind="lib" path="C:/mccity/server.jar"/>
+	<classpathentry kind="lib" path="C:/mccity/Vault.jar"/>
+	<classpathentry kind="lib" path="C:/mccity/worldedit-5.4.5.jar"/>
+	<classpathentry kind="output" path=""/>
+</classpath>
