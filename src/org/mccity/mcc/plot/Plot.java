@@ -55,6 +55,10 @@ public abstract class Plot {
 		return regions;
 	}
 	
+	public String getName(){
+		return name;
+	}
+	
 	private boolean setRegion(List<ProtectedRegion> regions){
 		
 		RegionManager regionManager = Mcc.worldGuard.getRegionManager(world);

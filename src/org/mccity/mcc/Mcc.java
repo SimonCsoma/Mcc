@@ -23,7 +23,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.mccity.mcc.commands.MccComands;
 import org.mccity.mcc.conversations.prompts.DefaultUser;
 import org.mccity.mcc.conversations.prompts.IntroPrompt;
-import org.mccity.mcc.plot.PlotCreator;
 import org.mccity.mcc.plot.PlotHandler;
 
 import ru.tehkode.permissions.PermissionUser;
@@ -221,14 +220,8 @@ public class Mcc extends JavaPlugin {
 			return true;
 		}
 		
-		if (cmd.getName().equalsIgnoreCase("createplot")){
-			Player player = getPlayer(sender);
-			if (!sender.isOp()){
-				return true;
-			}
-			PlotCreator plotCreator = new PlotCreator(player, this);
-			plotCreator.argumentOrginazer(args);
-			return true;
+		if (cmd.getName().equalsIgnoreCase("createcity")){
+			
 		}
 		/*
 		if (cmd.getName().equalsIgnoreCase("undo")){

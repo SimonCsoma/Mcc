@@ -7,6 +7,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.mccity.mcc.Mcc;
 import org.mccity.mcc.plot.Plot;
+import org.mccity.mcc.plot.PlotCreator;
 import org.mccity.mcc.plot.PlotHandler;
 
 public class PlotCommandProcessor {
@@ -195,16 +196,24 @@ public class PlotCommandProcessor {
 					player.sendMessage("Wrong arguments inputed");
 					return;					
 				}
-	
-		default:
-			player.sendMessage("Wrong arguments inputed");
-			return;	
-		}
-		
-	
-		
-		
-		
+			
+			case "buy":
+				player.sendMessage("Not implemented yet");
+				return;
+			case "sell":
+				player.sendMessage("Not implemented yet");
+				return;
+			case "expand":
+				player.sendMessage("Not implemented yet");
+				return;
+			case "create":
+				PlotCreator plotCreator = new PlotCreator(player);
+				plotCreator.argumentOrginazer(parameter[0]);
+				return;
+			default:
+				player.sendMessage("Wrong arguments inputed");
+				return;	
+		}		
 	}
 
 }

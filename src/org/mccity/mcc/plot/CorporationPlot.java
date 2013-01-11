@@ -3,13 +3,14 @@ package org.mccity.mcc.plot;
 import java.util.Date;
 import java.util.List;
 
+import org.bukkit.World;
+
 public class CorporationPlot extends Plot{
 
-	protected CityPlot city;
 
-	public CorporationPlot(String name, CityPlot city, List<String> regionIds) {
-		super(name, city.world, regionIds);
-		this.city = city;
+	public CorporationPlot(String name, World world, List<String> regionIds) {
+		super(name, world, regionIds);
+
 		
 	}
 

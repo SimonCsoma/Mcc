@@ -1,6 +1,7 @@
 package org.mccity.mcc.plot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.ChatColor;
@@ -17,75 +18,102 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 public class PlotCreator {
 	
+	/**
+	 * Very sloppy code needs cleaning soon!
+	 */
+	
 	public Player player;
-	public Mcc plugin;
 	int heigth = 25;
 	int depth = 6;
 	Vector position1 = null;
 	Vector position2 = null;
 	String name = null;
 	
-	public PlotCreator(Player player, Mcc plugin){
+	public PlotCreator(Player player){
 		this.player = player;
-		this.plugin = plugin;
 	}
 	
 	public void argumentOrginazer(String[] args){
-				
+			
+		/*
+		 * This for-loop pasrses the argument and makes the nessisary global fields.
+		 */
 		for(String arg:args) {
 			
-			if(arg.toLowerCase().contains("-s")) {
+			if(arg.toLowerCase().contains("-s")) {// The -s argument will make a starters plot
 				if(!player.isOp()){
 					player.sendMessage("You need to be op to create a starters plot!");
 					return;
 				}
 			} else if( arg.toLowerCase().contains("h:") || arg.toLowerCase().contains("height:")) {
-				
+				// the h:<number> or height:<number> argument can set a custum height for the given plot
 				int temp = arg.indexOf(":") + 1;
 				heigth = Integer.valueOf((String) arg.subSequence(temp, arg.length()));
 				
 			} else if( arg.toLowerCase().contains("d:") || arg.toLowerCase().contains("depth:")) {
-				
+				// the d:<number> of depth:<number> will set a custum depth for the plot and also
+				// places bedrock at the proper places
 				int temp = arg.indexOf(":") + 1;
 				depth = Integer.valueOf((String) arg.subSequence(temp, arg.length()));
 				
 			} else if ( arg.toLowerCase().contains("n") || arg.toLowerCase().contains("name:")) {
-				
+				// The N:<name of plot> or name:<name of plot> will specify the name of the plot that
+				// is about to be made. The plugin will terminate this action if no name is put in.
 				int temp = arg.indexOf(":") + 1;
 				name = (String) arg.subSequence(temp, arg.length());
 				
 			} else {
+				// Error catching for yet unknow arguments :P
 				player.sendMessage(ChatColor.RED + "The argument: " + arg + "does not exist.");
 				return;
 			}
 		}
 			
-		if (position1 == null && position2 == null) {
-			position1 = PlayerCords.getPlayerCords(player.getName())[0];
-			position2 = PlayerCords.getPlayerCords(player.getName())[1];
-		}
-		player.sendMessage(position1.getBlockY() + " 2nd " + position2.getBlockY());
+		// Error catching for the 2 posistions the player selected
+		position1 = PlayerCords.getPlayerCords(player.getName())[0];
+		position2 = PlayerCords.getPlayerCords(player.getName())[1];
 		if(position1 == null || position2 == null) {
-			player.sendMessage(ChatColor.RED + "You forgot to select an area");
+			player.sendMessage("You did not select 2 points to create the plot from");
 			return;
 		}
+		//debug
+		player.sendMessage(position1.getBlockY() + " 2nd " + position2.getBlockY());
+		
+		//You need to give a plot name.
 		if (name == null){
 			player.sendMessage(ChatColor.RED + "You forgot to give a plot name");
 		}
+		
+		// return more propper vectors for the plot creation so the region can be set
 		Vector[] temp = CreatePhysicalPlot.getProperVectors(position1, position2, heigth, depth);
 		position1 = temp[0];
 		position2 = temp[1];
-		if(!this.setRegion()){
+		
+		//makes the region and checks if this is legal on the given position and returns null
+		//if an error occures
+		ProtectedRegion plotRegion = setRegion();
+		
+		if(plotRegion == null){
 			return;
 		}
-
-        CreatePhysicalPlot.CreatePlot(position1, position2, heigth, depth, player.getWorld(), player);
-		createPlot(name, player.getWorld(), regionIds, typeOfPlot);
-		registerPlot(name, plot);
 		
+		//gets the region form the just created plot
+		List<String> regionIds = Arrays.asList(plotRegion.getId());
+		
+		//Searches the region for any city and returns null if it fails
+		CityPlot cityPlot = getCityPlot(plotRegion);
+		if(cityPlot == null){
+			player.sendMessage("You need to be in a city plot to make a residence plot");
+			return;
+		}
+		
+		// Builds the plot in the game world.
+        CreatePhysicalPlot.CreatePlot(position1, position2, heigth, depth, player.getWorld(), player);
+        // Instantates the plot object for the server to store and work with
+		createResidentPlot(name, player.getWorld(), regionIds, cityPlot);		
 	}
 	
-	public boolean setRegion(){
+	public ProtectedRegion setRegion(){
 		
 		//double playerBalance;
 		int lowX, lowZ, highX, highZ;
@@ -99,7 +127,7 @@ public class PlotCreator {
 			highX = position1.getBlockX();
 		} else {
 			player.sendMessage("The selection is too small to be a plot");
-			return false;
+			return null;
 		}
 			
 		if(position1.getBlockZ()  < position2.getBlockZ()) {
@@ -110,36 +138,41 @@ public class PlotCreator {
 			highZ = position1.getBlockZ();
 		} else {
 			player.sendMessage("The selection is too small to be a plot");
-			return false ;
+			return null ;
 		}
 		
 		if(!Mcc.eco.has(player.getName(), (highX - lowX) * (highZ - lowZ) * costs) && !player.isOp()){
 			player.sendMessage("Your balance is too low.");
-			return false;
+			return null;
 		}
-		if(!regionCreator()){
+		ProtectedRegion region = regionCreator();
+		if(regionCreator() == null){
 			player.sendMessage("Plot creation failed");
-			return false ;
+			return null ;
 		}
 		
-		return true;		
+		return region;		
 	}
 	
-	private boolean regionCreator() {
+	private ProtectedRegion regionCreator() {
 		
-		List<String> citys = plugin.getYamlHandler().getCityNames();
+		List<String> citys = Mcc.plugin.getYamlHandler().getCityNames(); //Filling List of Strings with Region names.
+		
+		ProtectedRegion region = null;
 		
 		for(String city: citys) {
 			
 			if(checkForRegions(player, name, city)){
-				saveRegion();
+				region = saveRegion();
 			}
 		}
 		
-		return true;
+		return region;
 		
 	}
-	public void saveRegion() {
+	
+	
+	public ProtectedCuboidRegion saveRegion() {//creates and returns a Cuboid region and saves it to RegionManager
 		
 		com.sk89q.worldedit.BlockVector pos1 = 
 				new com.sk89q.worldedit.BlockVector(position1.getBlockX(), position1.getBlockY(), position1.getBlockZ());
@@ -161,7 +194,7 @@ public class PlotCreator {
 			player.sendMessage(ChatColor.RED + "Critical World Guard error! Notify Funonly");
 		}
 		
-		return;
+		return newPlotRegion;
 	}
 	
 	private boolean checkForRegions(Player player, String plotName, String cityRegionName) {
@@ -209,8 +242,7 @@ public class PlotCreator {
 	 * @param world
 	 * @return List of the regions inside inputRegion
 	 */
-	
-	public static List<ProtectedRegion> getRegionsInRegion(ProtectedRegion inputRegion, World world) {
+	private static List<ProtectedRegion> getRegionsInRegion(ProtectedRegion inputRegion, World world) {
 		
 		List<ProtectedRegion> regionsInsideRegion = new ArrayList<ProtectedRegion>();
 		
@@ -225,35 +257,31 @@ public class PlotCreator {
 		return regionsInsideRegion;
 	}
 	
-	public Plot createPlot(String string, World world, List<String> stringList, String typeOfPlot){
-		
-		
-		switch (typeOfPlot){
-			case "city":
-				Plot plot = new CityPlot(string, world, stringList);
-				return plot;
-			case "corporation":
-				CityPlot cityPlot = new CityPlot(string, world, stringList);
-				Plot plot = new CorporationPlot(string, cityPlot, stringList);
-				return plot;
-			case "residence":
-				CityPlot cityPlot = new CityPlot(string, world, stringList);
-				Plot plot = new ResidencePlot(string, cityPlot, stringList);
-				return plot;
-			default:
-				return null;
-		}
-		
+	/*
+	 * Instantates the plot object stores it and returns it
+	 */
+	public Plot createResidentPlot(String string, World world, List<String> stringList, CityPlot cityPlot){
+		Plot plot = new ResidencePlot(string, cityPlot, stringList);
+		PlotHandler handle = Mcc.plugin.getPlotHander(player.getWorld());
+ 		handle.setPlot(plot.getName(), plot);
+		return plot;
 	}
 	
-	public void registerPlot(String nameOfPlot, Plot plot){
-		PlotHandler handle = new PlotHandler(plugin, player.getWorld());
- 		handle.setPlot(nameOfPlot, plot);
- 		
-        // plugin.plots;
-		//plugin.plots.set("plots.mcc.mccity", name);
+	/*
+	 * Returns the CityPlot that the region is in. If the region is not in any cityPlot
+	 * it will return null.
+	 */
+	private CityPlot getCityPlot(ProtectedRegion region){
+		List<String> citys = Mcc.plugin.getYamlHandler().getCityNames();
+		PlotHandler plotHandler = Mcc.plugin.getPlotHander(player.getWorld());
+		CityPlot cityPlot = null;
 		
-		
-		
+		for(String city : citys){
+			cityPlot  = (CityPlot)plotHandler.getPlot(city);
+			if(cityPlot.contains(region)){
+				return cityPlot;
+			}
+		}
+		return cityPlot;
 	}
 }

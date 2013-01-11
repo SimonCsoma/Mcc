@@ -4,8 +4,24 @@ import java.util.Date;
 import java.util.List;
 
 import org.bukkit.World;
+import org.mccity.mcc.Mcc;
+
+import com.sk89q.worldedit.BlockVector2D;
+import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 public class CityPlot extends Plot{
+	
+	public boolean contains(ProtectedRegion region){
+		
+		RegionManager regionManger = Mcc.worldGuard.getRegionManager(world);
+		List<BlockVector2D> vecs = region.getPoints();
+		for(String cityRegion : regionIds){
+			if(regionManger.getRegion(cityRegion).containsAny(vecs));
+			return true;
+		}		
+		return false;
+	}
 
 	public CityPlot(String name, World world, List<String> regionIds) {
 		super(name, world, regionIds);
